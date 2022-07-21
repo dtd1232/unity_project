@@ -7,6 +7,9 @@ TagManager:
   - floor
   - Item
   - EndPoint
+  - Target
+  - Bullet
+  - Box
   layers:
   - Default
   - TransparentFX
