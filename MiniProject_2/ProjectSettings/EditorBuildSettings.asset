@@ -4,5 +4,20 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Lee/Title.unity
+    guid: f47ac4383bcc44ea89fc203da6f13930
+  - enabled: 1
+    path: Assets/Scenes/Lee/stage1.unity
+    guid: a5c86e617f9794a469069672e6ca304d
+  - enabled: 1
+    path: Assets/Scenes/Lee/Stage2.unity
+    guid: e0c434fa54bb9fd40ae7e170dfd2188c
+  - enabled: 1
+    path: Assets/Scenes/Lee/FailureEnding.unity
+    guid: 8c709e76ebae649bd832c1f423934b8d
+  - enabled: 1
+    path: Assets/Scenes/Lee/SuccessEnding.unity
+    guid: 54c0f6773e7f0432bb4bc70f4654a086
   m_configObjects: {}

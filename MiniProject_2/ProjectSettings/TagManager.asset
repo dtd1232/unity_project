@@ -3,7 +3,12 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Field
+  - Button
+  - Goal
+  - Ground
+  - Ball
   layers:
   - Default
   - TransparentFX
@@ -38,6 +43,18 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: BackgroundImage
+    uniqueID: 494867841
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Image
+    uniqueID: 1978625331
+    locked: 0
+  - name: Text
+    uniqueID: 1065310515
+    locked: 0
+  - name: Button
+    uniqueID: 3262590031
     locked: 0
