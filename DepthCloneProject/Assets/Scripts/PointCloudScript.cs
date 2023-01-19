@@ -11,17 +11,17 @@ using UnityEngine.XR.ARSubsystems;
 public class PointCloudScript : MonoBehaviour
 {
     [SerializeField]
-    ARCameraManager m_CameraManager;
+    ARCameraManager m_CameraManager;    // AR Camera(AR Camera Manager)
     [SerializeField]
-    AROcclusionManager m_OcclusionManager;
+    AROcclusionManager m_OcclusionManager;  // AR Session Origin
     [SerializeField]
-    RawImage m_cameraView;
+    RawImage m_cameraView;  // RawImage for Camera View
     [SerializeField]
-    RawImage m_grayDepthView;
+    RawImage m_grayDepthView;   // RawImage for Gray Scale Depth View
     [SerializeField]
-    RawImage m_confidenceView;
+    RawImage m_confidenceView;  // RawImage of Confidence View
     [SerializeField]
-    Visualizer m_visualizer;
+    Visualizer m_visualizer;    // Visualizer
 
     [SerializeField]
     float near;
@@ -264,7 +264,7 @@ public class PointCloudScript : MonoBehaviour
         }
     }
 
-    public void SwitchScanMode(bool flg){
+    public void SwitchScanMode(bool flg){   // Without any settings, default bool value is false
         isScanning = flg;
         if(flg){
             m_visualizer.transform.parent = m_CameraManager.transform;
