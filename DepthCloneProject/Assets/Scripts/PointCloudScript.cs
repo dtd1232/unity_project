@@ -1,8 +1,4 @@
-using System.Reflection.Metadata;
-using System.Reflection;
 using System.Net.Mime;
-using System.Diagnostics;
-using System.Globalization;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,7 +28,7 @@ public class PointCloudScript : MonoBehaviour
     [SerializeField]
     float far;
 
-    Texture2D m_cameraTexture;
+    Texture2D m_CameraTexture;
     Texture2D m_DepthTexture_Float;
     Texture2D m_DepthTexture_BGRA;
     Texture2D m_DepthConfidenceTexture_R8;
@@ -47,13 +43,7 @@ public class PointCloudScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        m_visualizer.transform.parent = m_CameraManager.transform;
     }
 
     void OnEnable(){
@@ -63,7 +53,7 @@ public class PointCloudScript : MonoBehaviour
         }
     }
 
-    void void OnDisable()
+    void OnDisable()
     {
         // Unregister for frame received events
         if(m_CameraManager != null){
@@ -76,7 +66,7 @@ public class PointCloudScript : MonoBehaviour
         var conversionParams = new XRCpuImage.ConversionParams(cpuImage, format, XRCpuImage.Transformation.MirrorY);
 
         // Get the required size of the buffer
-        var raw TextureData = texture.GetRawTextureData<byte>();
+        var rawTextureData = texture.GetRawTextureData<byte>();
 
         // Make sure the buffer has enough size to get covnerted data(converted data should be same with orignal data)
         Debug.Assert(rawTextureData.Length == cpuImage.GetConvertedDataSize(conversionParams.outputDimensions, conversionParams.outputFormat),
@@ -98,18 +88,43 @@ public class PointCloudScript : MonoBehaviour
         using (image){
             // Get the image format
             // The format is always RGBA32
-            vat format = TextureFormat.RGBA32;
+            var format = TextureFormat.RGBA32;
 
             // Initialize the texture if required
-            if(m_cameraTexture == null || m_cameraTexture.width != image.width || m_cameraTexture.height != image.height){
-                m_cameraTexture = new Texture2D(image.width, image.height, format, false);
+            if(m_CameraTexture == null || m_CameraTexture.width != image.width || m_CameraTexture.height != image.height){
+                m_CameraTexture = new Texture2D(image.width, image.height, format, false);
             }
 
             // Get RawImage
             UpdateRawImage(m_CameraTexture, image, format);
 
             // Update the RawImage
-            m_cameraView.texture = m_cameraTexture;
+            m_cameraView.texture = m_CameraTexture;
+        }
+    }
+
+    void UpdateEnvironmentDepthImage(){
+        if(!m_OcclusionManager.TryAcquireEnvironmentDepthCpuImage(out XRCpuImage image)){
+            return;
+        }
+
+        using (image){
+            // Get the image format
+            if(m_DepthTexture_Float == null || m_DepthTexture_Float.width != image.width || m_DepthTexture_Float.height != image.height){
+                m_DepthTexture_Float = new Texture2D(image.width, image.height, image.format.AsTextureFormat(), false);
+            }
+            
+            // Get the image data
+            if(m_DepthTexture_BGRA == null || m_DepthTexture_BGRA.width != image.width || m_DepthTexture_BGRA.height != image.height){
+                m_DepthTexture_BGRA = new Texture2D(image.width, image.height, TextureFormat.BGRA32, false);
+            }
+
+            UpdateRawImage(m_DepthTexture_Float, image, image.format.AsTextureFormat());
+
+            ConvertFloatToGrayScale(m_DepthTexture_Float, m_DepthTexture_BGRA);
+
+            // Update the RawImage
+            m_grayDepthView.texture = m_DepthTexture_BGRA;
         }
     }
 
@@ -141,7 +156,122 @@ public class PointCloudScript : MonoBehaviour
         Color[] colorPixels = txGray.GetPixels();
 
         for(int index = 0; index < length; index++){
-            var value = 
+            var value = (depthPixels[index].r - near) / (far - near);
+
+            colorPixels[index].r = value;
+            colorPixels[index].g = value;
+            colorPixels[index].b = value;
+            colorPixels[index].a = 1;
+        }
+        txGray.SetPixels(colorPixels);
+        txGray.Apply();
+    }
+    
+    void ConvertR8ToConfidenceMap(Texture2D txR8, Texture2D txRGBA){
+        Color32[] r8 = txR8.GetPixels32();
+        Color32[] rgba = txRGBA.GetPixels32();
+
+        for(int i = 0; i < r8.Length; i++){
+            switch(r8[i].r){    // 0: low, 1: medium, 2: high
+                case 0:
+                    rgba[i].r = 255;
+                    rgba[i].g = 0;
+                    rgba[i].b = 0;
+                    rgba[i].a = 255;
+                    break;
+                case 1:
+                    rgba[i].r = 0;
+                    rgba[i].g = 255;
+                    rgba[i].b = 0;
+                    rgba[i].a = 255;
+                    break;
+                case 2:
+                    rgba[i].r = 0;
+                    rgba[i].g = 0;
+                    rgba[i].b = 255;
+                    rgba[i].a = 255;
+                    break;
+            }
+            txRGBA.SetPixels32(rgba);
+            txRGBA.Apply();
+        }
+    }
+
+    void ReprojectPointCloud(){
+        print("Depth: " + m_DepthTexture_Float.width + ", " + m_DepthTexture_Float.height);
+        print("Color: " + m_CameraTexture.width + ", " + m_CameraTexture.height);
+        int width_depth = m_DepthTexture_Float.width;
+        int height_depth = m_DepthTexture_Float.height;
+        int width_camera = m_CameraTexture.width;
+
+        if(vertices == null || colors == null){ // Initialize
+            vertices = new Vector3[width_depth * height_depth];
+            colors = new Color[width_depth * height_depth];
+
+            XRCameraIntrinsics intrinsic;   // Get camera intrinsics
+            m_CameraManager.TryGetIntrinsics(out intrinsic);
+            print("intrinsics: " + intrinsic);
+
+            float ratio = (float) width_depth / (float) width_camera;
+            // 초점 거리
+            fx = intrinsic.focalLength.x * ratio;
+            fy = intrinsic.focalLength.y * ratio;
+
+            cx = intrinsic.principalPoint.x * ratio;
+            cy = intrinsic.principalPoint.y * ratio;
+        }
+
+        Color[] depthPixels = m_DepthTexture_Float.GetPixels();
+
+        int index_dst;
+        float depth;
+        for(int depth_y = 0; depth_y < height_depth; depth_y++){
+            index_dst = depth_y * width_depth;
+            for(int depth_x = 0; depth_x < width_depth; depth_x++){
+                index_dst = depth_y * width_depth + depth_x;
+                depth = depthPixels[index_dst].r;
+
+                if(depth > 0.0f){
+                    vertices[index_dst].x = -depth * (depth_x - cx) / fx;
+                    vertices[index_dst].y = -depth * (depth_y - cy) / fy;
+                    vertices[index_dst].z = depth;
+                }
+                else{
+                    vertices[index_dst].x = 0;
+                    vertices[index_dst].y = 0;
+                    vertices[index_dst].z = -999;
+                }
+                index_dst++;
+            }
+        }
+
+        m_visualizer.UpdateMeshInfo(vertices, colors);
+    }
+
+    void OnCameraFrameReceived(ARCameraFrameEventArgs eventArgs){
+        // Update the camera image
+        UpdateCameraImage();
+
+        // Update the depth image
+        UpdateEnvironmentDepthImage();
+
+        // Update the environment confidence image
+        UpdateEnvironmentConfidenceImage();
+
+        // Reproject the point cloud
+        if(isScanning){
+            ReprojectPointCloud();
+        }
+    }
+
+    public void SwitchScanMode(bool flg){
+        isScanning = flg;
+        if(flg){
+            m_visualizer.transform.parent = m_CameraManager.transform;
+            m_visualizer.transform.localPosition = Vector3.zero;
+            m_visualizer.transform.localRotation = Quaternion.identity;
+        }else{
+            m_visualizer.transform.parent = null;
         }
     }
 }
