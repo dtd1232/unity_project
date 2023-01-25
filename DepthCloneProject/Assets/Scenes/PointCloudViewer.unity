@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657838, g: 0.49641234, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -616,7 +616,19 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2133530485}
+        m_TargetAssemblyTypeName: PointCloudScript, Assembly-CSharp
+        m_MethodName: SwitchScanMode
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 1
 --- !u!1 &705507993
 GameObject:
@@ -1090,6 +1102,7 @@ GameObject:
   - component: {fileID: 1357472758}
   - component: {fileID: 1357472757}
   - component: {fileID: 1357472756}
+  - component: {fileID: 1357472759}
   m_Layer: 0
   m_Name: PointCloud
   m_TagString: Untagged
@@ -1116,7 +1129,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 2aad8917cb88f434c8b73c6d5002fa57, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1160,6 +1173,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1357472759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1357472755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e179a00d83f444a4680d470efb608093, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1513971674
 GameObject:
   m_ObjectHideFlags: 0
@@ -1408,6 +1433,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2133530484}
+  - component: {fileID: 2133530485}
   m_Layer: 0
   m_Name: DepthImageManager
   m_TagString: Untagged
@@ -1429,3 +1455,23 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2133530485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2133530483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 302569f79d58a4f1fb60d3c9c39b70e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_CameraManager: {fileID: 438590669}
+  m_OcclusionManager: {fileID: 2035078757}
+  m_cameraView: {fileID: 271554974}
+  m_grayDepthView: {fileID: 247558794}
+  m_confidenceView: {fileID: 2098038498}
+  m_visualizer: {fileID: 1357472759}
+  near: 0.2
+  far: 3
