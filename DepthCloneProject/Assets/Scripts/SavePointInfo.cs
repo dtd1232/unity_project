@@ -1,21 +1,163 @@
+using System.Net;
+using System.IO;
+using System.Net.Mime;
+using System.Text;
+using System;
+using System.Xml.Schema;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
+public struct PointInfo{
+    public Vector3[] p_CameraPos;
+    public List<Vector4> p_CameraTransform;
+    public List<Vector3> p_CameraIntrinsics;
+    public int p_LightEstimate;
+    public Vector3[] p_CameraEulerAngle;
+    public int image_height;
+    public int image_width;
+    public int p_PointCloudCount;
+    public List<Vector3> p_PointCloudPoints;
+}
+
+// To test serialize and deserialize json
+[Serializable]
+public class JTestClass
+{
+    public Vector3 p_CameraPos;
+    public Vector4[] p_CameraTransform;
+    // public Vector4[] p_CameraTransform = new [] {new Vector4(0,0,0,0), new Vector4(0,0,0,0), new Vector4(0,0,0,0), new Vector4(0,0,0,0)};
+    public Vector3[] p_CameraIntrinsics;
+    // public Vector3[] p_CameraIntrinsics = new [] {new Vector3(0,0,0), new Vector3(0,0,0), new Vector3(0,0,0)}
+    public int p_LightEstimate;
+    public Vector3 p_CameraEulerAngle;
+    public int image_height;
+    public int image_width;
+    public int p_PointCloudCount;
+    public Vector3[] p_PointCloudPoints;
+
+    public JTestClass(){}
+
+    public JTestClass(bool isSet)
+    {
+        if(isSet)
+        {
+            p_CameraPos = new Vector3(0.06280376f, 0.09753288f, 0.2484026f);
+            p_CameraTransform = new [] {new Vector4(0.7944834f, 0.1900937f, -0.5767672f, 0.09753288f), 
+                                        new Vector4(0.02751624f, 0.9375021f, 0.3468895f, 0.06280376f), 
+                                        new Vector4(0.6066621f, -0.2914684f, 0.7395993f, 0.2484026f), 
+                                        new Vector4(0f, 0f, 0f, 0.9999999f)};
+            p_CameraIntrinsics = new [] {new Vector3(1089.032f, 0f, 639.5f), 
+                                        new Vector3(0f, 1089.032f, 359.5f), 
+                                        new Vector3(0f, 0f, 1f)};
+            p_LightEstimate = 900;
+            p_CameraEulerAngle = new Vector3(-0.6623252f, -0.3542526f, 0.02934217f);
+            image_height = 720;
+            image_width = 1280;
+            p_PointCloudCount = 14;
+            p_PointCloudPoints = new [] {new Vector3(0.009132311f, -0.1209963f, -0.3236341f), 
+                                        new Vector3(0.03226537f, -0.200156f, -0.2408179f), 
+                                        new Vector3(-0.03220909f, -0.1751883f, -0.2980332f), 
+                                        new Vector3(0.1577605f, -0.04950373f, -0.165259f), 
+                                        new Vector3(-0.01605938f, -0.1400419f, -0.3291739f), 
+                                        new Vector3(0.1319766f, -0.008718062f, -0.2003034f), 
+                                        new Vector3(-0.007355154f, -0.1416959f, -0.3188091f), 
+                                        new Vector3(0.3313366f, 0.01935824f, -0.2032971f), 
+                                        new Vector3(-0.07076509f, -0.1112466f, -0.337195f), 
+                                        new Vector3(-0.02018498f, -0.2368188f, -0.2609907f), 
+                                        new Vector3(-0.05286608f, -0.1704044f, -0.3560755f),
+                                        new Vector3(0.1514294f, -0.1075755f, -0.3322785f),
+                                        new Vector3(0.1554509f, -0.09778123f, -0.3796904f),
+                                        new Vector3(0.02490559f, -0.02921103f, -0.3341784f)};
+        }
+    }
+
+    public void Print()
+    {
+        Debug.Log("x: " + p_CameraPos.x);
+        Debug.Log("y: " + p_CameraPos.y);
+        Debug.Log("z: " + p_CameraPos.z);
+        Debug.Log("p_CameraPos: " + p_CameraPos);
+        for(int idx = 0; idx < p_CameraTransform.Length; idx++)
+        {
+            Debug.Log("p_CameraTransform: " + p_CameraTransform[idx]);
+        }
+        Debug.Log("p_CameraTransform: " + p_CameraTransform[1][1]);
+        for(int idx = 0; idx < p_CameraIntrinsics.Length; idx++)
+        {
+            Debug.Log("p_CameraIntrinsics: " + p_CameraIntrinsics[idx]);
+        }
+        Debug.Log("p_LightEstimate: " + p_LightEstimate);
+        Debug.Log("p_CameraEulerAngle: " + p_CameraEulerAngle);
+        Debug.Log("image_height: " + image_height);
+        Debug.Log("image_width: " + image_width);
+        Debug.Log("p_PointCloudCount: " + p_PointCloudCount);
+        for(int idx = 0; idx < p_PointCloudPoints.Length; idx++)
+        {
+            Debug.Log("p_PointCloudPoints: " + p_PointCloudPoints[idx]);
+        }
+    }
+}
+
 public class SavePointInfo : MonoBehaviour
 {
     private PointCloudScript m_PointCloudScript;
+    // Vector3[] CameraPos;
+    // Vector4[] CameraTransform;
+    // Vector3[] CameraIntrinsics;
+    // private int LightEstimate;
+    // Vector3[] CameraEulerAngle;
+    // Vector2[] ImageResolution;
+
+    string ObjectToJson(object obj)
+    {
+        return JsonUtility.ToJson(obj);
+    }
+
+    T JsonToObject<T>(string jsondata)
+    {
+        return JsonUtility.FromJson<T>(jsondata);
+    }
 
     // Start is called before the first frame update
     void Start()
     {
+        JTestClass jtc = new JTestClass(true);
+        string jsondata = ObjectToJson(jtc);
+        // CreateJsonFile(Application.dataPath, "JsonTestClass", jsondata);
         
+        // Debug.Log(jsondata);
+
+        // var jtc2 = JsonToObject<JTestClass>(jsondata);
+        // jtc2.Print();
+
+        var jct2 = LoadJsonFile<JTestClass>(Application.dataPath, "test");
+        jct2.Print();
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    void CreateJsonFile(string createPath, string fileName, string jsondata)
+    {
+        FileStream fileStream = new FileStream(String.Format("{0}/{1}.json", createPath, fileName), FileMode.Create);
+        byte[] data = Encoding.UTF8.GetBytes(jsondata);
+        fileStream.Write(data, 0, data.Length);
+        fileStream.Close();
+    }
+    
+    T LoadJsonFile<T>(string loadPath, string fileName)
+    {
+        FileStream fileStream = new FileStream(string.Format("{0}/{1}.json", loadPath, fileName), FileMode.Open);
+        byte[] data = new byte[fileStream.Length];
+        fileStream.Read(data, 0, data.Length);
+        fileStream.Close();
+        string jsondata = Encoding.UTF8.GetString(data);
+        return JsonUtility.FromJson<T>(jsondata);
     }
 }
 

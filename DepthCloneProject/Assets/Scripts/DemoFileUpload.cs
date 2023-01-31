@@ -4,14 +4,15 @@ using UnityEngine;
 
 public class DemoFileUpload : MonoBehaviour
 {
-    public string m_Ip = "127.0.0.1";
-    public int m_Port = 50001;
+    public string m_Ip = "192.168.61.2";
+    public int m_Port = 9199;
     private FileTransfer m_FileTransfer;
     public string[] m_UploadFilePaths;  // File paths to upload
+    private bool m_IsUploading = false;
 
     void Start()
     {
-        m_FileTransfer = new FileTransfer(m_Port, FileTransfer.ETransfer.Upload, m_Ip);    
+        m_FileTransfer = new FileTransfer(m_Port, FileTransfer.ETransfer.Upload, m_Ip);
     }
 
     void Update()

@@ -391,4 +391,4 @@ public class FileTransfer
             Thread.Sleep(100);
         }
     }
-}
+}   
