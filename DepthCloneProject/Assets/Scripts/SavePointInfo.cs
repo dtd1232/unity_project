@@ -83,7 +83,6 @@ public class JTestClass
         {
             Debug.Log("p_CameraTransform: " + p_CameraTransform[idx]);
         }
-        Debug.Log("p_CameraTransform: " + p_CameraTransform[1][1]);
         for(int idx = 0; idx < p_CameraIntrinsics.Length; idx++)
         {
             Debug.Log("p_CameraIntrinsics: " + p_CameraIntrinsics[idx]);
@@ -100,15 +99,48 @@ public class JTestClass
     }
 }
 
+[Serializable]
+public class PointToJson
+{
+    public Vector3 p_CameraPos;
+    public Vector4[] p_CameraTransform;
+    // public Vector4[] p_CameraTransform = new [] {new Vector4(0,0,0,0), new Vector4(0,0,0,0), new Vector4(0,0,0,0), new Vector4(0,0,0,0)};
+    public Vector3[] p_CameraIntrinsics;
+    // public Vector3[] p_CameraIntrinsics = new [] {new Vector3(0,0,0), new Vector3(0,0,0), new Vector3(0,0,0)}
+    public int p_LightEstimate;
+    public Vector3 p_CameraEulerAngle;
+    public int image_height;
+    public int image_width;
+    public int p_PointCloudCount;
+    public Vector3[] p_PointCloudPoints= null;
+
+    private PointCloudScript m_PointCloudScript;
+
+    public PointToJson(){}
+    
+    public void GetPointInfoFromPointCloudScripts()
+    {
+        // image_height = ;
+        // image_width = ;
+        if(m_PointCloudScript.isUpload)
+        {
+            
+        }
+    }
+}
+
 public class SavePointInfo : MonoBehaviour
 {
-    private PointCloudScript m_PointCloudScript;
-    // Vector3[] CameraPos;
-    // Vector4[] CameraTransform;
-    // Vector3[] CameraIntrinsics;
-    // private int LightEstimate;
-    // Vector3[] CameraEulerAngle;
-    // Vector2[] ImageResolution;
+    public Vector3 p_CameraPos;
+    public Vector4[] p_CameraTransform;
+    public Vector3[] p_CameraIntrinsics;
+    public int p_LightEstimate;
+    public Vector3 p_CameraEulerAngle;
+    public int image_height;
+    public int image_width;
+    public int p_PointCloudCount;
+    public Vector3[] p_PointCloudPoints;
+    public Color[] p_Colors;
 
     string ObjectToJson(object obj)
     {
@@ -125,15 +157,15 @@ public class SavePointInfo : MonoBehaviour
     {
         JTestClass jtc = new JTestClass(true);
         string jsondata = ObjectToJson(jtc);
-        // CreateJsonFile(Application.dataPath, "JsonTestClass", jsondata);
+        CreateJsonFile(Application.dataPath, "JsonTestClass", jsondata);
         
         // Debug.Log(jsondata);
 
         // var jtc2 = JsonToObject<JTestClass>(jsondata);
         // jtc2.Print();
 
-        var jct2 = LoadJsonFile<JTestClass>(Application.dataPath, "test");
-        jct2.Print();
+        // var jct2 = LoadJsonFile<JTestClass>(Application.dataPath, "test");
+        // jct2.Print();
     }
 
     // Update is called once per frame
@@ -159,6 +191,7 @@ public class SavePointInfo : MonoBehaviour
         string jsondata = Encoding.UTF8.GetString(data);
         return JsonUtility.FromJson<T>(jsondata);
     }
+    
 }
 
 

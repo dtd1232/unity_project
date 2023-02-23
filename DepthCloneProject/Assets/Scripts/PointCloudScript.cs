@@ -39,6 +39,10 @@ public class PointCloudScript : MonoBehaviour
 
     float cx, cy, fx, fy;
     bool isScanning = true;
+    public bool isUpload = true;
+
+    private SavePointInfo savePointInfo;
+    private JsonTransfer jsonTransfer;
 
     // Start is called before the first frame update
     void Start()
@@ -204,6 +208,12 @@ public class PointCloudScript : MonoBehaviour
         int height_depth = m_DepthTexture_Float.height;
         int width_camera = m_CameraTexture.width;
 
+        savePointInfo.image_height = height_depth;
+        savePointInfo.image_width = width_depth;
+        
+        savePointInfo.p_PointCloudPoints = new Vector3[height_depth * width_depth];
+        savePointInfo.p_Colors = new Color[height_depth * width_depth];
+
         if(vertices == null || colors == null){ // Initialize
             vertices = new Vector3[width_depth * height_depth];
             colors = new Color[width_depth * height_depth];
@@ -273,5 +283,23 @@ public class PointCloudScript : MonoBehaviour
         }else{
             m_visualizer.transform.parent = null;
         }
+    }
+
+    public void SwitchUploadMode(bool flg){
+        isUpload = flg;
+        if(flg && isScanning){
+            int height_depth = m_DepthTexture_Float.height;
+            int width_depth = m_DepthTexture_Float.width;
+            
+            savePointInfo.image_height = height_depth;
+            savePointInfo.image_width = width_depth;
+            
+            savePointInfo.p_PointCloudPoints = new Vector3[height_depth * width_depth];
+            savePointInfo.p_Colors = new Color[height_depth * width_depth];
+        }
+    }
+
+    public void OnButtonClick(){
+        jsonTransfer.readJson();
     }
 }
